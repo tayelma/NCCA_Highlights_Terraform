@@ -36,6 +36,10 @@ This project automates the deployment of AWS resources and processes video conte
 
    Ensure your AWS credentials are set up, typically in `~/.aws/credentials`.
 
+   ```bash
+   aws configure
+   ```
+
 3. **Provision AWS Resources with Terraform**:
 
    ```bash
@@ -44,20 +48,49 @@ This project automates the deployment of AWS resources and processes video conte
    terraform apply
    ```
 
-4. **Build and Run the Docker Container**:
+4. **AWS S3 Setup** (Optional):
+
+   If you need to create an S3 bucket for storing processed videos:
+
+   ```bash
+   aws s3api create-bucket --bucket your-bucket-name --region your-region
+   ```
+
+5. **Apply Changes to the Desired State**:
+
+   ```bash
+   terraform apply -var-file="terraform.dev.tfvars"
+   ```
+
+6. **Log into ECR**:
+
+   ```bash
+   aws ecr get-login-password --region us-east-1 | \
+     docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+   ```
+
+7. **Build and Push the Docker Image**:
+
+   ```bash
+   docker build -t highlight-pipeline:latest .
+   docker tag highlight-pipeline:latest <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/highlight-pipeline:latest
+   docker push <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/highlight-pipeline:latest
+   ```
+
+8. **Build and Run the Docker Container**:
 
    ```bash
    docker build -t ncca-highlights .
    docker run -v $(pwd):/app -it ncca-highlights
    ```
 
-5. **Install Python Dependencies** (if not using Docker):
+9. **Install Python Dependencies** (if not using Docker):
 
    ```bash
    pip install -r requirements.txt
    ```
 
-6. **Execute the Main Script**:
+10. **Execute the Main Script**:
 
    ```bash
    python run_all.py
