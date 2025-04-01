@@ -11,6 +11,8 @@
 # Ignore terrform variable files 
 *.tfvars
 *.tfvars.json
+*.git
+.terraform
 
 # ----------------------------
 # Optional: Ignore Other Files
